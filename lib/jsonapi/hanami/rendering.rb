@@ -42,7 +42,7 @@ module JSONAPI
 
       def _jsonapi_render_error
         document =
-          JSONAPI::Serializable::ErrorRenderer.render(@_jsonapi[:errors],
+          JSONAPI::Serializable::ErrorSource.render(@_jsonapi[:errors],
                                                       _jsonapi_error_params)
         self.status = _jsonapi_error_status unless @_status
         self.format = :jsonapi if @format.nil?
