@@ -25,8 +25,7 @@ module JSONAPI
       def _jsonapi_render_success
         self.format = :jsonapi if @format.nil?
         return unless @_jsonapi.key?(:data)
-        self.body = JSONAPI::Serializable::Renderer.render(@_jsonapi[:data],
-                                                           _jsonapi_params)
+        self.body = _renderer.render(@_jsonapi[:data], _jsonapi_params).to_json
       end
 
       # NOTE(beauby): It might be worth factoring those methods out into a
@@ -41,12 +40,9 @@ module JSONAPI
       end
 
       def _jsonapi_render_error
-        document =
-          JSONAPI::Serializable::ErrorSource.render(@_jsonapi[:errors],
-                                                      _jsonapi_error_params)
         self.status = _jsonapi_error_status unless @_status
         self.format = :jsonapi if @format.nil?
-        self.body   = document
+        self.body   = _renderer.render_errors(_jsonapi_errors, _jsonapi_error_params).to_json
       end
 
       def _jsonapi_error_status
@@ -61,6 +57,10 @@ module JSONAPI
       def _jsonapi_errors
         # TODO(beauby): Implement inferrence for Hanami::Validations.
         @_jsonapi[:errors]
+      end
+
+      def _renderer
+        JSONAPI::Serializable::Renderer.new
       end
     end
   end
